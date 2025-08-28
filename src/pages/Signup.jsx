@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { signup } from "../api/auth";
+import { getStations } from "../api/stations";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
@@ -12,31 +13,50 @@ import {
   Card,
   CardContent,
   Stack,
+  MenuItem,
 } from "@mui/material";
 
 const Signup = () => {
   const [form, setForm] = useState({
-    first_name: "",
-    last_name: "",
     username: "",
     password: "",
+    role: "manager", // default role
+    stationId: null,
   });
+
+  const [stations, setStations] = useState([]);
 
   const { user } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (user) {
-      navigate("/");
-    }
+    if (user) navigate("/");
+
+    // Fetch stations for dropdown
+    const fetchStations = async () => {
+      try {
+        const { data } = await getStations();
+        setStations(data);
+      } catch (err) {
+        console.error("Failed to fetch stations", err);
+      }
+    };
+    fetchStations();
   }, [user, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await signup(form);
+      const payload = {
+        username: form.username,
+        password: form.password,
+        role: form.role,
+        stationId: form.role === "manager" ? form.stationId : null,
+      };
+
+      await signup(payload);
       alert("Signup successful");
-      navigate("/login"); // redirect after signup
+      navigate("/login");
     } catch (err) {
       alert(err.response?.data?.error || "Signup failed");
     }
@@ -51,26 +71,6 @@ const Signup = () => {
               Create an Account
             </Typography>
             <form onSubmit={handleSubmit}>
-              <TextField
-                label="First Name"
-                variant="outlined"
-                fullWidth
-                margin="normal"
-                value={form.first_name}
-                onChange={(e) =>
-                  setForm({ ...form, first_name: e.target.value })
-                }
-              />
-              <TextField
-                label="Last Name"
-                variant="outlined"
-                fullWidth
-                margin="normal"
-                value={form.last_name}
-                onChange={(e) =>
-                  setForm({ ...form, last_name: e.target.value })
-                }
-              />
               <TextField
                 label="Username"
                 variant="outlined"
@@ -88,6 +88,45 @@ const Signup = () => {
                 value={form.password}
                 onChange={(e) => setForm({ ...form, password: e.target.value })}
               />
+
+              {/* Role Dropdown */}
+              <TextField
+                select
+                label="Role"
+                variant="outlined"
+                fullWidth
+                margin="normal"
+                value={form.role}
+                onChange={(e) =>
+                  setForm({ ...form, role: e.target.value, stationId: null })
+                }
+              >
+                <MenuItem value="admin">Admin</MenuItem>
+                <MenuItem value="manager">Manager</MenuItem>
+                <MenuItem value="partner">Partner</MenuItem>
+              </TextField>
+
+              {/* Station Dropdown (only for managers) */}
+              {form.role === "manager" && (
+                <TextField
+                  select
+                  label="Station"
+                  variant="outlined"
+                  fullWidth
+                  margin="normal"
+                  value={form.stationId || ""}
+                  onChange={(e) =>
+                    setForm({ ...form, stationId: Number(e.target.value) })
+                  }
+                >
+                  {stations.map((station) => (
+                    <MenuItem key={station.id} value={station.id}>
+                      {station.name} - {station.location}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              )}
+
               <Stack spacing={2} mt={2}>
                 <Button
                   type="submit"

@@ -3,55 +3,359 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  TextField,
   Button,
+  TextField,
+  MenuItem,
   Grid,
+  Table,
+  TableHead,
+  IconButton,
+  TableRow,
+  TableCell,
+  TableBody,
+  Typography,
 } from "@mui/material";
+import { Add, Delete } from "@mui/icons-material";
 
-const EditRecordDialog = ({ open, onClose, record, onChange, onSave }) => {
-  if (!record) return null;
+// inline component, same file
+function EditRecordDialog({
+  open,
+  onClose,
+  record,
+  onChange,
+  onSave,
+  stations,
+}) {
+  const handleFieldChange = (field) => (e) => {
+    onChange(field, e.target.value);
+  };
 
-  const fields = [
-    { name: "ww_bill_code", label: "WW Bill" },
-    { name: "invoice_no", label: "Invoice No" },
-    { name: "bill_detail", label: "Bill Detail" },
-    { name: "customer_name", label: "Customer Name" },
-    { name: "head_of_account", label: "Head of Account" },
-    { name: "sanctioned_amount", label: "Sanctioned Amount" },
-    { name: "cheque_number", label: "Cheque Number" },
-    { name: "cheque_amount", label: "Cheque Amount" },
-    { name: "cash_value", label: "Cash Value" },
-    { name: "profit", label: "Profit" },
-    { name: "total_expenses", label: "Total Expenses" },
-    { name: "income_tax_hardware", label: "Income Tax Hardware" },
-    { name: "income_tax_service", label: "Income Tax Service" },
-    { name: "sales_tax_gst_18", label: "GST @18%" },
-    { name: "sales_tax_sst_16", label: "SST @16%" },
-    { name: "one_fifth_gst", label: "1/5 GST" },
-    { name: "date_of_bill", label: "Date of Bill", type: "date" },
-    { name: "date_of_printing", label: "Date of Printing", type: "date" },
-    { name: "received_date", label: "Received Date", type: "date" },
-  ];
+  // update one expenditure row
+  const handleExpenditureChange = (index, field, value) => {
+    const newExps = [...(record.Expenditures || [])];
+    newExps[index] = { ...newExps[index], [field]: value };
+    onChange("Expenditures", newExps);
+  };
+
+  // add a new expenditure row
+  const handleAddExpenditure = () => {
+    const newExps = [
+      ...(record.Expenditures || []),
+      { description: "", category: "", amount: "" },
+    ];
+    onChange("Expenditures", newExps);
+  };
+
+  // remove a row
+  const handleRemoveExpenditure = (index) => {
+    const newExps = [...(record.Expenditures || [])];
+    newExps.splice(index, 1);
+    onChange("Expenditures", newExps);
+  };
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
-      <DialogTitle>Edit Record</DialogTitle>
+    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
+      <DialogTitle>Edit Master Record</DialogTitle>
       <DialogContent dividers>
         <Grid container spacing={2}>
-          {fields.map(({ name, label, type }) => (
-            <Grid item xs={6} key={name}>
-              <TextField
-                fullWidth
-                label={label}
-                type={type || "text"}
-                InputLabelProps={type === "date" ? { shrink: true } : {}}
-                value={record[name] || ""}
-                onChange={(e) => onChange(name, e.target.value)}
-              />
-            </Grid>
-          ))}
+          {/* Date */}
+          <Grid item xs={6}>
+            <TextField
+              label="Date"
+              type="date"
+              value={record.date || ""}
+              onChange={handleFieldChange("date")}
+              fullWidth
+              slotProps={{
+                inputLabel: { shrink: true },
+              }}
+            />
+          </Grid>
+
+          {/* Station */}
+          <Grid item xs={6}>
+            <TextField
+              select
+              label="Station"
+              value={record.stationId || ""}
+              onChange={handleFieldChange("stationId")}
+              fullWidth
+            >
+              {stations.map((s) => (
+                <MenuItem key={s.id} value={s.id}>
+                  {s.name}
+                </MenuItem>
+              ))}
+            </TextField>
+          </Grid>
+
+          {/* Sales Fields */}
+          <Grid item xs={6}>
+            <TextField
+              label="Total Sale (Kgs)"
+              type="number"
+              value={record.totalSaleKgs || ""}
+              onChange={handleFieldChange("totalSaleKgs")}
+              fullWidth
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <TextField
+              label="Rate per Kg"
+              type="number"
+              value={record.ratePerKg || ""}
+              onChange={handleFieldChange("ratePerKg")}
+              fullWidth
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <TextField
+              label="Total CNG Sale"
+              type="number"
+              value={record.totalCngSale || ""}
+              onChange={handleFieldChange("totalCngSale")}
+              fullWidth
+            />
+          </Grid>
+
+          {/* Revenue & Expenditure */}
+          <Grid item xs={6}>
+            <TextField
+              label="Other Revenue / Loan Return"
+              type="number"
+              value={record.otherRevenueLoanReturn || ""}
+              onChange={handleFieldChange("otherRevenueLoanReturn")}
+              fullWidth
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <TextField
+              label="Kitchen Expenses"
+              type="number"
+              value={record.kitchenExpensesAmount || ""}
+              onChange={handleFieldChange("kitchenExpensesAmount")}
+              fullWidth
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <TextField
+              label="General Expenses"
+              type="number"
+              value={record.generalExpensesAmount || ""}
+              onChange={handleFieldChange("generalExpensesAmount")}
+              fullWidth
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <TextField
+              label="Diesel/Lube/Compressor"
+              type="number"
+              value={record.generatorCompressorDieselLubeAmount || ""}
+              onChange={handleFieldChange(
+                "generatorCompressorDieselLubeAmount"
+              )}
+              fullWidth
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <TextField
+              label="Salary/Advance/Net Pay"
+              type="number"
+              value={record.salaryAdvanceNetPay || ""}
+              onChange={handleFieldChange("salaryAdvanceNetPay")}
+              fullWidth
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <TextField
+              label="Loan Repayment / Other Payments"
+              type="number"
+              value={record.loanRepaymentOtherPayments || ""}
+              onChange={handleFieldChange("loanRepaymentOtherPayments")}
+              fullWidth
+            />
+          </Grid>
+
+          {/* Totals */}
+          <Grid item xs={6}>
+            <TextField
+              label="Total Daily Expenditure"
+              type="number"
+              value={record.totalDailyExpenditure || ""}
+              onChange={handleFieldChange("totalDailyExpenditure")}
+              fullWidth
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <TextField
+              label="Net Sale"
+              type="number"
+              value={record.netSale || ""}
+              onChange={handleFieldChange("netSale")}
+              fullWidth
+            />
+          </Grid>
+
+          {/* Remarks */}
+          <Grid item xs={12}>
+            <TextField
+              label="Remarks"
+              value={record.remarks || ""}
+              onChange={handleFieldChange("remarks")}
+              fullWidth
+              multiline
+              rows={2}
+            />
+          </Grid>
+
+          {/* Deposit/Withdrawal */}
+          <Grid item xs={6}>
+            <TextField
+              label="Depositable"
+              type="number"
+              value={record.depositable || ""}
+              onChange={handleFieldChange("depositable")}
+              fullWidth
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <TextField
+              label="Deposited"
+              type="number"
+              value={record.deposited || ""}
+              onChange={handleFieldChange("deposited")}
+              fullWidth
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <TextField
+              label="Withdrawal"
+              type="number"
+              value={record.withdrawal || ""}
+              onChange={handleFieldChange("withdrawal")}
+              fullWidth
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <TextField
+              label="WD/Dep Date"
+              type="date"
+              value={record.wdDepDate || ""}
+              onChange={handleFieldChange("wdDepDate")}
+              fullWidth
+              slotProps={{
+                inputLabel: { shrink: true },
+              }}
+            />
+          </Grid>
+
+          {/* SNGPL Meter */}
+          <Grid item xs={6}>
+            <TextField
+              label="SNGPL Meter Opening"
+              type="number"
+              value={record.sngplMeterOpening || ""}
+              onChange={handleFieldChange("sngplMeterOpening")}
+              fullWidth
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <TextField
+              label="SNGPL Meter Closing"
+              type="number"
+              value={record.sngplMeterClosing || ""}
+              onChange={handleFieldChange("sngplMeterClosing")}
+              fullWidth
+            />
+          </Grid>
         </Grid>
+        <Typography variant="h6" sx={{ mt: 3, mb: 1 }}>
+          Expenditure Details
+        </Typography>
+
+        <Table size="small">
+          <TableHead>
+            <TableRow>
+              <TableCell>Description</TableCell>
+              <TableCell>Category</TableCell>
+              <TableCell>Amount</TableCell>
+              <TableCell />
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {(record.Expenditures || []).map((ex, idx) => (
+              <TableRow key={idx}>
+                <TableCell>
+                  <TextField
+                    value={ex.description || ""}
+                    onChange={(e) =>
+                      handleExpenditureChange(
+                        idx,
+                        "description",
+                        e.target.value
+                      )
+                    }
+                    fullWidth
+                  />
+                </TableCell>
+                <TableCell>
+                  <TextField
+                    select
+                    value={ex.category || ""}
+                    onChange={(e) =>
+                      handleExpenditureChange(idx, "category", e.target.value)
+                    }
+                    fullWidth
+                  >
+                    {[
+                      "kitchen",
+                      "general",
+                      "diesel",
+                      "salary",
+                      "loan",
+                      "other",
+                    ].map((c) => (
+                      <MenuItem key={c} value={c}>
+                        {c}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                </TableCell>
+                <TableCell>
+                  <TextField
+                    type="number"
+                    value={ex.amount || ""}
+                    onChange={(e) =>
+                      handleExpenditureChange(idx, "amount", e.target.value)
+                    }
+                    fullWidth
+                  />
+                </TableCell>
+                <TableCell>
+                  <IconButton
+                    color="error"
+                    onClick={() => handleRemoveExpenditure(idx)}
+                  >
+                    <Delete fontSize="small" />
+                  </IconButton>
+                </TableCell>
+              </TableRow>
+            ))}
+            <TableRow>
+              <TableCell colSpan={4}>
+                <Button
+                  startIcon={<Add />}
+                  onClick={handleAddExpenditure}
+                  size="small"
+                >
+                  Add Expenditure
+                </Button>
+              </TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
       </DialogContent>
+
       <DialogActions>
         <Button onClick={onClose}>Cancel</Button>
         <Button onClick={onSave} variant="contained" color="primary">
@@ -60,6 +364,6 @@ const EditRecordDialog = ({ open, onClose, record, onChange, onSave }) => {
       </DialogActions>
     </Dialog>
   );
-};
+}
 
 export default EditRecordDialog;

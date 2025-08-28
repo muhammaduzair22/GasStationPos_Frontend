@@ -71,14 +71,14 @@ const Login = () => {
                 >
                   Log In
                 </Button>
-                <Button
+                {/* <Button
                   variant="outlined"
                   color="secondary"
                   fullWidth
                   onClick={() => navigate("/signup")}
                 >
                   Sign Up
-                </Button>
+                </Button> */}
               </Stack>
             </form>
           </CardContent>
