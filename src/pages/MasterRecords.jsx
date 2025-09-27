@@ -80,7 +80,11 @@ const MasterRecords = () => {
 
   const handleEdit = (record) => {
     setEditingId(record.id);
-    setEditedData({ ...record, Expenditures: record.Expenditures || [] });
+    setEditedData({
+      ...record,
+      Expenditures: record.Expenditures || [],
+      NozzleReadings: record.NozzleReadings || [],
+    });
     setIsModalOpen(true);
   };
 
@@ -97,7 +101,6 @@ const MasterRecords = () => {
     const cleanData = {
       date: formatDateForDb(editedData.date),
       totalSaleKgs: editedData.totalSaleKgs,
-      ratePerKg: editedData.ratePerKg,
       totalCngSale: editedData.totalCngSale,
       otherRevenueLoanReturn: editedData.otherRevenueLoanReturn,
       expenditureDetail: editedData.expenditureDetail,
@@ -115,6 +118,7 @@ const MasterRecords = () => {
       withdrawal: editedData.withdrawal,
       wdDepDate: formatDateForDb(editedData.wdDepDate),
       Expenditures: editedData.Expenditures,
+      NozzleReadings: editedData.NozzleReadings,
     };
 
     await updateRecord(editingId, cleanData);
@@ -276,7 +280,6 @@ const MasterRecords = () => {
               <TableCell>Date</TableCell>
               <TableCell>Station</TableCell>
               <TableCell>Total Sale (Kgs)</TableCell>
-              <TableCell>Rate/Kg</TableCell>
               <TableCell>Total CNG Sale</TableCell>
               <TableCell>Deposit</TableCell>
               <TableCell>Withdrawal</TableCell>
@@ -316,7 +319,6 @@ const MasterRecords = () => {
                   <TableCell>{formatDate(rec.date)}</TableCell>
                   <TableCell>{stationMap[rec.stationId] || "—"}</TableCell>
                   <TableCell>{formatNumber(rec.totalSaleKgs)}</TableCell>
-                  <TableCell>{formatNumber(rec.ratePerKg)}</TableCell>
                   <TableCell>{formatNumber(rec.totalCngSale)}</TableCell>
                   <TableCell>{formatNumber(rec.deposited)}</TableCell>
                   <TableCell>{formatNumber(rec.withdrawal)}</TableCell>
@@ -347,21 +349,31 @@ const MasterRecords = () => {
                       timeout="auto"
                       unmountOnExit
                     >
-                      <Box margin={1}>
-                        <Typography variant="subtitle2">
+                      <Box margin={2}>
+                        {/* Section: Nozzle Readings */}
+                        <Typography
+                          variant="subtitle1"
+                          sx={{ fontWeight: "bold", mb: 1, color: "#0D47A1" }}
+                        >
                           Nozzle Readings
                         </Typography>
-                        <Table size="small" sx={{ mb: 2 }}>
+                        <Table size="small" sx={{ mb: 3 }}>
                           <TableHead>
-                            <TableRow>
-                              <TableCell>Nozzle</TableCell>
-                              <TableCell>Opening</TableCell>
-                              <TableCell>Closing</TableCell>
+                            <TableRow sx={{ backgroundColor: "#e3f2fd" }}>
+                              <TableCell sx={{ fontWeight: "bold" }}>
+                                Nozzle
+                              </TableCell>
+                              <TableCell sx={{ fontWeight: "bold" }}>
+                                Opening
+                              </TableCell>
+                              <TableCell sx={{ fontWeight: "bold" }}>
+                                Closing
+                              </TableCell>
                             </TableRow>
                           </TableHead>
                           <TableBody>
                             {rec.NozzleReadings?.map((nz) => (
-                              <TableRow key={nz.id}>
+                              <TableRow key={nz.id} hover>
                                 <TableCell>{nz.nozzleNumber}</TableCell>
                                 <TableCell>
                                   {formatNumber(nz.opening)}
@@ -374,20 +386,30 @@ const MasterRecords = () => {
                           </TableBody>
                         </Table>
 
-                        <Typography variant="subtitle2">
+                        {/* Section: Expenditures */}
+                        <Typography
+                          variant="subtitle1"
+                          sx={{ fontWeight: "bold", mb: 1, color: "#0D47A1" }}
+                        >
                           Expenditures
                         </Typography>
                         <Table size="small">
                           <TableHead>
-                            <TableRow>
-                              <TableCell>Category</TableCell>
-                              <TableCell>Description</TableCell>
-                              <TableCell>Amount</TableCell>
+                            <TableRow sx={{ backgroundColor: "#fbe9e7" }}>
+                              <TableCell sx={{ fontWeight: "bold" }}>
+                                Category
+                              </TableCell>
+                              <TableCell sx={{ fontWeight: "bold" }}>
+                                Description
+                              </TableCell>
+                              <TableCell sx={{ fontWeight: "bold" }}>
+                                Amount
+                              </TableCell>
                             </TableRow>
                           </TableHead>
                           <TableBody>
                             {rec.Expenditures?.map((ex) => (
-                              <TableRow key={ex.id}>
+                              <TableRow key={ex.id} hover>
                                 <TableCell>{ex.category}</TableCell>
                                 <TableCell>{ex.description}</TableCell>
                                 <TableCell>{formatNumber(ex.amount)}</TableCell>

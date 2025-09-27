@@ -20,6 +20,7 @@ import FeedIcon from "@mui/icons-material/Feed";
 import TableChartIcon from "@mui/icons-material/TableChart";
 import StoreIcon from "@mui/icons-material/Store";
 import PeopleIcon from "@mui/icons-material/People";
+import SummarizeIcon from "@mui/icons-material/Summarize";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
@@ -58,7 +59,7 @@ const Layout = () => {
     menuItems.push({
       label: "Monthly Summary",
       path: "/summary",
-      icon: <PeopleIcon />,
+      icon: <SummarizeIcon />,
     });
   } else if (user?.role === "partner") {
     menuItems.push({

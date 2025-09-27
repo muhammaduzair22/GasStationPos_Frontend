@@ -20,10 +20,9 @@ const DailyDetailForm = () => {
   const [formData, setFormData] = useState({
     date: "",
     totalSaleKgs: "",
-    ratePerKg: "",
     totalCngSale: "",
     otherRevenueLoanReturn: "",
-    expenditures: [{ description: "", amount: "", category: "" }],
+    Expenditures: [{ description: "", amount: "", category: "" }],
     totalDailyExpenditure: "",
     netSale: "",
     remarks: "",
@@ -34,7 +33,7 @@ const DailyDetailForm = () => {
     stationId: userRole === "manager" ? userStationId : "",
     sngplMeterOpening: "",
     sngplMeterClosing: "",
-    nozzleReadings: [
+    NozzleReadings: [
       {
         nozzleNumber: "",
         opening: "",
@@ -85,30 +84,30 @@ const DailyDetailForm = () => {
     }
   };
   const handleNozzleChange = (index, field, value) => {
-    const updated = [...formData.nozzleReadings];
+    const updated = [...formData.NozzleReadings];
     updated[index][field] = value;
-    setFormData({ ...formData, nozzleReadings: updated });
+    setFormData({ ...formData, NozzleReadings: updated });
   };
 
   const handleExpenditureChange = (index, field, value) => {
-    const updated = [...formData.expenditures];
+    const updated = [...formData.Expenditures];
     updated[index][field] = value;
-    setFormData({ ...formData, expenditures: updated });
+    setFormData({ ...formData, Expenditures: updated });
   };
 
   const addExpenditureRow = () => {
     setFormData({
       ...formData,
-      expenditures: [
-        ...formData.expenditures,
+      Expenditures: [
+        ...formData.Expenditures,
         { description: "", amount: "", category: "" },
       ],
     });
   };
 
   const removeExpenditureRow = (index) => {
-    const updated = formData.expenditures.filter((_, i) => i !== index);
-    setFormData({ ...formData, expenditures: updated });
+    const updated = formData.Expenditures.filter((_, i) => i !== index);
+    setFormData({ ...formData, Expenditures: updated });
   };
 
   // place this above handleSubmit
@@ -132,7 +131,7 @@ const DailyDetailForm = () => {
 
     // clean top-level keys
     Object.entries(out).forEach(([k, v]) => {
-      if (k === "nozzleReadings" || k === "expenditures") return;
+      if (k === "NozzleReadings" || k === "Expenditures") return;
 
       if (TEXT_KEYS.has(k)) {
         out[k] = v === "" || v === undefined ? null : v;
@@ -141,26 +140,26 @@ const DailyDetailForm = () => {
       }
     });
 
-    // nested nozzleReadings
-    out.nozzleReadings = Array.isArray(data.nozzleReadings)
-      ? data.nozzleReadings
-          .filter((n) => n && (n.nozzleNumber || n.opening || n.closing))
-          .map((n) => ({
-            nozzleNumber: n.nozzleNumber ? Number(n.nozzleNumber) : null,
-            opening: toNumberOrNull(n.opening),
-            closing: toNumberOrNull(n.closing),
-          }))
+    // nested NozzleReadings
+    out.NozzleReadings = Array.isArray(data.NozzleReadings)
+      ? data.NozzleReadings.filter(
+          (n) => n && (n.nozzleNumber || n.opening || n.closing)
+        ).map((n) => ({
+          nozzleNumber: n.nozzleNumber ? Number(n.nozzleNumber) : null,
+          opening: toNumberOrNull(n.opening),
+          closing: toNumberOrNull(n.closing),
+        }))
       : [];
 
-    // nested expenditures
-    out.expenditures = Array.isArray(data.expenditures)
-      ? data.expenditures
-          .filter((e) => e && (e.description || e.amount || e.category))
-          .map((e) => ({
-            description: e.description || "",
-            category: e.category || "other",
-            amount: toNumberOrNull(e.amount),
-          }))
+    // nested Expenditures
+    out.Expenditures = Array.isArray(data.Expenditures)
+      ? data.Expenditures.filter(
+          (e) => e && (e.description || e.amount || e.category)
+        ).map((e) => ({
+          description: e.description || "",
+          category: e.category || "other",
+          amount: toNumberOrNull(e.amount),
+        }))
       : [];
 
     return out;
@@ -178,7 +177,6 @@ const DailyDetailForm = () => {
       setFormData({
         date: "",
         totalSaleKgs: "",
-        ratePerKg: "",
         totalCngSale: "",
         otherRevenueLoanReturn: "",
         expenditureDetail: "",
@@ -197,14 +195,14 @@ const DailyDetailForm = () => {
         stationId: "",
         sngplMeterOpening: "",
         sngplMeterClosing: "",
-        nozzleReadings: [
+        NozzleReadings: [
           {
             nozzleNumber: "",
             opening: "",
             closing: "",
           },
         ],
-        expenditures: [{ description: "", amount: "", category: "" }],
+        Expenditures: [{ description: "", amount: "", category: "" }],
       });
     } catch (err) {
       console.error("Error creating record:", err);
@@ -304,15 +302,6 @@ const DailyDetailForm = () => {
           />
 
           <TextField
-            label="Rate Per Kg"
-            name="ratePerKg"
-            type="number"
-            value={formData.ratePerKg}
-            onChange={handleChange}
-            required
-          />
-
-          <TextField
             label="Total CNG Sale"
             name="totalCngSale"
             type="number"
@@ -332,7 +321,7 @@ const DailyDetailForm = () => {
           <Typography variant="h6" sx={{ mt: 3 }}>
             Expenditures
           </Typography>
-          {formData.expenditures.map((exp, index) => (
+          {formData.Expenditures.map((exp, index) => (
             <Grid container spacing={2} key={index}>
               <Grid item xs={4}>
                 <TextField
@@ -453,7 +442,7 @@ const DailyDetailForm = () => {
             Nozzle Readings
           </Typography>
 
-          {formData.nozzleReadings.map((nozzle, index) => (
+          {formData.NozzleReadings.map((nozzle, index) => (
             <Grid item xs={12} key={index}>
               <Grid container spacing={2} alignItems="center">
                 {/* Nozzle Number Selector */}
@@ -506,9 +495,9 @@ const DailyDetailForm = () => {
                   <Button
                     color="error"
                     onClick={() => {
-                      const updated = [...formData.nozzleReadings];
+                      const updated = [...formData.NozzleReadings];
                       updated.splice(index, 1);
-                      setFormData({ ...formData, nozzleReadings: updated });
+                      setFormData({ ...formData, NozzleReadings: updated });
                     }}
                   >
                     X
@@ -523,8 +512,8 @@ const DailyDetailForm = () => {
             onClick={() =>
               setFormData({
                 ...formData,
-                nozzleReadings: [
-                  ...formData.nozzleReadings,
+                NozzleReadings: [
+                  ...formData.NozzleReadings,
                   { nozzleNumber: "", opening: "", closing: "" },
                 ],
               })

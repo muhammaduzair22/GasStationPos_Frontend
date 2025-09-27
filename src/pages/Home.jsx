@@ -1,5 +1,6 @@
 import { useAuth } from "../context/AuthContext";
 import { Typography, Container } from "@mui/material";
+import AnalyticsDashboard from "../components/AnalyticsDashboard";
 
 const Home = () => {
   const { user, logout } = useAuth();
@@ -10,10 +11,8 @@ const Home = () => {
         <Typography variant="h4" gutterBottom>
           Welcome, {user?.username}!
         </Typography>
-        <Typography variant="body1" gutterBottom>
-          Use the button below to manage your master records.
-        </Typography>
       </Container>
+      {user.role !== "manager" && <AnalyticsDashboard />}
     </div>
   );
 };

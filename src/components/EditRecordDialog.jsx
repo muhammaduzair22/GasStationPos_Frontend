@@ -53,6 +53,29 @@ function EditRecordDialog({
     onChange("Expenditures", newExps);
   };
 
+  // update one nozzle reading row
+  const handleNozzleChange = (index, field, value) => {
+    const newNozzles = [...(record.NozzleReadings || [])];
+    newNozzles[index] = { ...newNozzles[index], [field]: value };
+    onChange("NozzleReadings", newNozzles);
+  };
+
+  // add a new nozzle reading row
+  const handleAddNozzle = () => {
+    const newNozzles = [
+      ...(record.NozzleReadings || []),
+      { nozzleNumber: "", opening: "", closing: "" },
+    ];
+    onChange("NozzleReadings", newNozzles);
+  };
+
+  // remove a nozzle row
+  const handleRemoveNozzle = (index) => {
+    const newNozzles = [...(record.NozzleReadings || [])];
+    newNozzles.splice(index, 1);
+    onChange("NozzleReadings", newNozzles);
+  };
+
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
       <DialogTitle>Edit Master Record</DialogTitle>
@@ -96,15 +119,6 @@ function EditRecordDialog({
               type="number"
               value={record.totalSaleKgs || ""}
               onChange={handleFieldChange("totalSaleKgs")}
-              fullWidth
-            />
-          </Grid>
-          <Grid item xs={6}>
-            <TextField
-              label="Rate per Kg"
-              type="number"
-              value={record.ratePerKg || ""}
-              onChange={handleFieldChange("ratePerKg")}
               fullWidth
             />
           </Grid>
@@ -269,6 +283,92 @@ function EditRecordDialog({
             />
           </Grid>
         </Grid>
+
+        <Typography variant="h6" sx={{ mt: 3, mb: 1 }}>
+          Nozzle Readings
+        </Typography>
+
+        <Table size="small">
+          <TableHead>
+            <TableRow>
+              <TableCell sx={{ fontWeight: "bold" }}>Nozzle</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>Opening</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>Closing</TableCell>
+              <TableCell />
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {(record.NozzleReadings || []).map((nz, idx) => (
+              <TableRow key={idx}>
+                {/* Dropdown for nozzleNumber */}
+                <TableCell sx={{ width: "20%" }}>
+                  <TextField
+                    select
+                    value={nz.nozzleNumber || ""}
+                    onChange={(e) =>
+                      handleNozzleChange(idx, "nozzleNumber", e.target.value)
+                    }
+                    fullWidth
+                  >
+                    {[1, 2, 3, 4, 5, 6].map((n) => (
+                      <MenuItem key={n} value={n}>
+                        Nozzle {n}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                </TableCell>
+
+                {/* Opening */}
+                <TableCell>
+                  <TextField
+                    type="number"
+                    value={nz.opening || ""}
+                    onChange={(e) =>
+                      handleNozzleChange(idx, "opening", e.target.value)
+                    }
+                    fullWidth
+                  />
+                </TableCell>
+
+                {/* Closing */}
+                <TableCell>
+                  <TextField
+                    type="number"
+                    value={nz.closing || ""}
+                    onChange={(e) =>
+                      handleNozzleChange(idx, "closing", e.target.value)
+                    }
+                    fullWidth
+                  />
+                </TableCell>
+
+                {/* Remove button */}
+                <TableCell>
+                  <IconButton
+                    color="error"
+                    onClick={() => handleRemoveNozzle(idx)}
+                  >
+                    <Delete fontSize="small" />
+                  </IconButton>
+                </TableCell>
+              </TableRow>
+            ))}
+
+            {/* Add button row */}
+            <TableRow>
+              <TableCell colSpan={4}>
+                <Button
+                  startIcon={<Add />}
+                  onClick={handleAddNozzle}
+                  size="small"
+                >
+                  Add Nozzle
+                </Button>
+              </TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
+
         <Typography variant="h6" sx={{ mt: 3, mb: 1 }}>
           Expenditure Details
         </Typography>
@@ -276,9 +376,9 @@ function EditRecordDialog({
         <Table size="small">
           <TableHead>
             <TableRow>
-              <TableCell>Description</TableCell>
-              <TableCell>Category</TableCell>
-              <TableCell>Amount</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>Description</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>Category</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>Amount</TableCell>
               <TableCell />
             </TableRow>
           </TableHead>
