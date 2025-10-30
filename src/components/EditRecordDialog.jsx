@@ -64,7 +64,13 @@ function EditRecordDialog({
   const handleAddNozzle = () => {
     const newNozzles = [
       ...(record.NozzleReadings || []),
-      { nozzleNumber: "", opening: "", closing: "" },
+      {
+        nozzleNumber: "",
+        openingGirary: "",
+        closingGirary: "",
+        openingScreen: "",
+        closingScreen: "",
+      },
     ];
     onChange("NozzleReadings", newNozzles);
   };

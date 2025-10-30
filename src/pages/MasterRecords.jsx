@@ -102,6 +102,8 @@ const MasterRecords = () => {
       date: formatDateForDb(editedData.date),
       totalSaleKgs: editedData.totalSaleKgs,
       totalCngSale: editedData.totalCngSale,
+      sngplMeterOpening: editedData.sngplMeterOpening,
+      sngplMeterClosing: editedData.sngplMeterClosing,
       otherRevenueLoanReturn: editedData.otherRevenueLoanReturn,
       expenditureDetail: editedData.expenditureDetail,
       kitchenExpensesAmount: editedData.kitchenExpensesAmount,
@@ -281,6 +283,8 @@ const MasterRecords = () => {
               <TableCell>Station</TableCell>
               <TableCell>Total Sale (Kgs)</TableCell>
               <TableCell>Total CNG Sale</TableCell>
+              <TableCell>Sngpl Meter Closing</TableCell>
+              <TableCell>Sngpl Meter Opening</TableCell>
               <TableCell>Deposit</TableCell>
               <TableCell>Withdrawal</TableCell>
               <TableCell>Net Sale</TableCell>
@@ -320,6 +324,8 @@ const MasterRecords = () => {
                   <TableCell>{stationMap[rec.stationId] || "—"}</TableCell>
                   <TableCell>{formatNumber(rec.totalSaleKgs)}</TableCell>
                   <TableCell>{formatNumber(rec.totalCngSale)}</TableCell>
+                  <TableCell>{formatNumber(rec.sngplMeterOpening)}</TableCell>
+                  <TableCell>{formatNumber(rec.sngplMeterClosing)}</TableCell>
                   <TableCell>{formatNumber(rec.deposited)}</TableCell>
                   <TableCell>{formatNumber(rec.withdrawal)}</TableCell>
                   <TableCell>{formatNumber(rec.netSale)}</TableCell>
@@ -364,25 +370,58 @@ const MasterRecords = () => {
                                 Nozzle
                               </TableCell>
                               <TableCell sx={{ fontWeight: "bold" }}>
-                                Opening
+                                OpeningGirary
                               </TableCell>
                               <TableCell sx={{ fontWeight: "bold" }}>
-                                Closing
+                                ClosingGirary
+                              </TableCell>
+                              <TableCell sx={{ fontWeight: "bold" }}>
+                                TotalGiraryDiff(KGs)
+                              </TableCell>
+                              <TableCell sx={{ fontWeight: "bold" }}>
+                                OpeningScreen
+                              </TableCell>
+                              <TableCell sx={{ fontWeight: "bold" }}>
+                                ClosingScreen
+                              </TableCell>
+                              <TableCell sx={{ fontWeight: "bold" }}>
+                                TotalScreenDiff(KGs)
                               </TableCell>
                             </TableRow>
                           </TableHead>
                           <TableBody>
-                            {rec.NozzleReadings?.map((nz) => (
-                              <TableRow key={nz.id} hover>
-                                <TableCell>{nz.nozzleNumber}</TableCell>
-                                <TableCell>
-                                  {formatNumber(nz.opening)}
-                                </TableCell>
-                                <TableCell>
-                                  {formatNumber(nz.closing)}
-                                </TableCell>
-                              </TableRow>
-                            ))}
+                            {rec.NozzleReadings?.map((nz) => {
+                              const giraryDiff =
+                                (nz.closingGirary ?? 0) -
+                                (nz.openingGirary ?? 0);
+                              const screenDiff =
+                                (nz.closingScreen ?? 0) -
+                                (nz.openingScreen ?? 0);
+
+                              return (
+                                <TableRow key={nz.id} hover>
+                                  <TableCell>{nz.nozzleNumber}</TableCell>
+                                  <TableCell>
+                                    {formatNumber(nz.openingGirary)}
+                                  </TableCell>
+                                  <TableCell>
+                                    {formatNumber(nz.closingGirary)}
+                                  </TableCell>
+                                  <TableCell>
+                                    {formatNumber(giraryDiff)}
+                                  </TableCell>
+                                  <TableCell>
+                                    {formatNumber(nz.openingScreen)}
+                                  </TableCell>
+                                  <TableCell>
+                                    {formatNumber(nz.closingScreen)}
+                                  </TableCell>
+                                  <TableCell>
+                                    {formatNumber(screenDiff)}
+                                  </TableCell>
+                                </TableRow>
+                              );
+                            })}
                           </TableBody>
                         </Table>
 

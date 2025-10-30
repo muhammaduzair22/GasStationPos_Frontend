@@ -36,8 +36,10 @@ const DailyDetailForm = () => {
     NozzleReadings: [
       {
         nozzleNumber: "",
-        opening: "",
-        closing: "",
+        openingGirary: "",
+        closingGirary: "",
+        openingScreen: "",
+        closingScreen: "",
       },
     ],
   });
@@ -143,11 +145,19 @@ const DailyDetailForm = () => {
     // nested NozzleReadings
     out.NozzleReadings = Array.isArray(data.NozzleReadings)
       ? data.NozzleReadings.filter(
-          (n) => n && (n.nozzleNumber || n.opening || n.closing)
+          (n) =>
+            n &&
+            (n.nozzleNumber ||
+              n.openingGirary ||
+              n.closingGirary ||
+              n.openingScreen ||
+              n.closingScreen)
         ).map((n) => ({
           nozzleNumber: n.nozzleNumber ? Number(n.nozzleNumber) : null,
-          opening: toNumberOrNull(n.opening),
-          closing: toNumberOrNull(n.closing),
+          openingGirary: toNumberOrNull(n.openingGirary),
+          closingGirary: toNumberOrNull(n.closingGirary),
+          openingScreen: toNumberOrNull(n.openingScreen),
+          closingScreen: toNumberOrNull(n.closingScreen),
         }))
       : [];
 
@@ -198,8 +208,10 @@ const DailyDetailForm = () => {
         NozzleReadings: [
           {
             nozzleNumber: "",
-            opening: "",
-            closing: "",
+            openingGirary: "",
+            closingGirary: "",
+            openingScreen: "",
+            closingScreen: "",
           },
         ],
         Expenditures: [{ description: "", amount: "", category: "" }],
@@ -464,27 +476,53 @@ const DailyDetailForm = () => {
                   </TextField>
                 </Grid>
 
-                {/* Opening Reading */}
+                {/* Opening Girary */}
                 <Grid item xs={3}>
                   <TextField
-                    label="Opening"
+                    label="Opening Girary"
                     type="number"
-                    value={nozzle.opening}
+                    value={nozzle.openingGirary}
                     onChange={(e) =>
-                      handleNozzleChange(index, "opening", e.target.value)
+                      handleNozzleChange(index, "openingGirary", e.target.value)
                     }
                     fullWidth
                   />
                 </Grid>
 
-                {/* Closing Reading */}
+                {/* Closing Girary */}
                 <Grid item xs={3}>
                   <TextField
-                    label="Closing"
+                    label="Closing Girary"
                     type="number"
-                    value={nozzle.closing}
+                    value={nozzle.closingGirary}
                     onChange={(e) =>
-                      handleNozzleChange(index, "closing", e.target.value)
+                      handleNozzleChange(index, "closingGirary", e.target.value)
+                    }
+                    fullWidth
+                  />
+                </Grid>
+
+                {/* Opening Screen */}
+                <Grid item xs={3}>
+                  <TextField
+                    label="Opening Screen"
+                    type="number"
+                    value={nozzle.openingScreen}
+                    onChange={(e) =>
+                      handleNozzleChange(index, "openingScreen", e.target.value)
+                    }
+                    fullWidth
+                  />
+                </Grid>
+
+                {/* Closing Screen */}
+                <Grid item xs={3}>
+                  <TextField
+                    label="Closing Screen"
+                    type="number"
+                    value={nozzle.closingScreen}
+                    onChange={(e) =>
+                      handleNozzleChange(index, "closingScreen", e.target.value)
                     }
                     fullWidth
                   />
@@ -514,7 +552,13 @@ const DailyDetailForm = () => {
                 ...formData,
                 NozzleReadings: [
                   ...formData.NozzleReadings,
-                  { nozzleNumber: "", opening: "", closing: "" },
+                  {
+                    nozzleNumber: "",
+                    openingGirary: "",
+                    closingGirary: "",
+                    openingScreen: "",
+                    closingScreen: "",
+                  },
                 ],
               })
             }

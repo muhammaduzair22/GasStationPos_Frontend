@@ -21,6 +21,8 @@ import TableChartIcon from "@mui/icons-material/TableChart";
 import StoreIcon from "@mui/icons-material/Store";
 import PeopleIcon from "@mui/icons-material/People";
 import SummarizeIcon from "@mui/icons-material/Summarize";
+import RequestQuoteIcon from "@mui/icons-material/RequestQuote";
+import BadgeIcon from "@mui/icons-material/Badge";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
@@ -60,6 +62,16 @@ const Layout = () => {
       label: "Monthly Summary",
       path: "/summary",
       icon: <SummarizeIcon />,
+    });
+    menuItems.push({
+      label: "Loan",
+      path: "/loan",
+      icon: <RequestQuoteIcon />,
+    });
+    menuItems.push({
+      label: "Employees",
+      path: "/employee",
+      icon: <BadgeIcon />,
     });
   } else if (user?.role === "partner") {
     menuItems.push({

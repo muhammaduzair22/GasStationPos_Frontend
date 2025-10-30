@@ -10,6 +10,8 @@ import Managers from "./pages/Managers";
 import AdminRoute from "./components/AdminRoute";
 import DailyDetailForm from "./pages/DailyDetailForm";
 import MonthlySalary from "./pages/MonthlySalary";
+import Loan from "./pages/Loan";
+import Employees from "./pages/Employees";
 
 function App() {
   return (
@@ -56,6 +58,22 @@ function App() {
             element={
               <AdminRoute>
                 <Managers />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/loan"
+            element={
+              <AdminRoute>
+                <Loan />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/employee"
+            element={
+              <AdminRoute>
+                <Employees />
               </AdminRoute>
             }
           />
