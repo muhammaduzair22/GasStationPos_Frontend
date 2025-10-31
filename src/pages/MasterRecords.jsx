@@ -42,6 +42,23 @@ const MasterRecords = () => {
   const [filterMonth, setFilterMonth] = useState("");
   const [filterStation, setFilterStation] = useState("");
 
+  const categoryDisplayNames = {
+    kitchen: "Kitchen Expenses",
+    general: "General Expenses",
+    generatordieselelubecompressor:
+      "Generator/Compressor Diesel/Lube Amount (Rs.)",
+    salary: "Salary Advance/Net Pay",
+    premisesrent: "Premises Rent",
+    pettycash: "Petty Cash",
+    shahzebkhanallowence: "Shahzeb Khan Allowence",
+    kgandjaws: "KG & JAWS Dastarkhwan",
+    loansgivenreturnedtostation: "Loans   Given/Returned to CNG Station",
+    machineryrepair: "Machinery Repair/Maintenance",
+    loansexpenditurebyakeknknk:
+      "Loans/Expenditures By Aurangzeb Khan/ Ejaz Khan/Dr. Nasir Khan/Nadeem Khan",
+    other: "Other",
+  };
+
   const toggleRow = (id) => {
     setOpenRow(openRow === id ? null : id);
   };
@@ -101,6 +118,7 @@ const MasterRecords = () => {
     const cleanData = {
       date: formatDateForDb(editedData.date),
       totalSaleKgs: editedData.totalSaleKgs,
+      gasRatePerKg: editedData.gasRatePerKg,
       totalCngSale: editedData.totalCngSale,
       sngplMeterOpening: editedData.sngplMeterOpening,
       sngplMeterClosing: editedData.sngplMeterClosing,
@@ -176,6 +194,13 @@ const MasterRecords = () => {
       expenditures: {},
     }
   );
+
+  // ---- Ensure all categories exist in expenditures ----
+  Object.keys(categoryDisplayNames).forEach((cat) => {
+    if (!(cat in summary.expenditures)) {
+      summary.expenditures[cat] = 0;
+    }
+  });
 
   return (
     <div>
@@ -264,9 +289,12 @@ const MasterRecords = () => {
                 Expenditures by Category
               </TableCell>
             </TableRow>
+
             {Object.entries(summary.expenditures).map(([category, amount]) => (
               <TableRow key={category}>
-                <TableCell sx={{ pl: 4 }}>{category}</TableCell>
+                <TableCell sx={{ pl: 4 }}>
+                  {categoryDisplayNames[category] || category}
+                </TableCell>
                 <TableCell colSpan={3}>{amount.toLocaleString()}</TableCell>
               </TableRow>
             ))}
@@ -282,6 +310,7 @@ const MasterRecords = () => {
               <TableCell>Date</TableCell>
               <TableCell>Station</TableCell>
               <TableCell>Total Sale (Kgs)</TableCell>
+              <TableCell>Gas Rate PerKg</TableCell>
               <TableCell>Total CNG Sale</TableCell>
               <TableCell>Sngpl Meter Closing</TableCell>
               <TableCell>Sngpl Meter Opening</TableCell>
@@ -323,6 +352,7 @@ const MasterRecords = () => {
                   <TableCell>{formatDate(rec.date)}</TableCell>
                   <TableCell>{stationMap[rec.stationId] || "—"}</TableCell>
                   <TableCell>{formatNumber(rec.totalSaleKgs)}</TableCell>
+                  <TableCell>{formatNumber(rec.gasRatePerKg)}</TableCell>
                   <TableCell>{formatNumber(rec.totalCngSale)}</TableCell>
                   <TableCell>{formatNumber(rec.sngplMeterOpening)}</TableCell>
                   <TableCell>{formatNumber(rec.sngplMeterClosing)}</TableCell>
@@ -330,11 +360,7 @@ const MasterRecords = () => {
                   <TableCell>{formatNumber(rec.withdrawal)}</TableCell>
                   <TableCell>{formatNumber(rec.netSale)}</TableCell>
                   <TableCell>{rec.remarks}</TableCell>
-                  <TableCell>
-                    {formatNumber(
-                      rec.Expenditures?.reduce((sum, e) => sum + e.amount, 0)
-                    )}
-                  </TableCell>
+                  <TableCell>{rec.totalDailyExpenditure}</TableCell>
 
                   {/* EXPAND BUTTON */}
                   <TableCell>
@@ -439,6 +465,9 @@ const MasterRecords = () => {
                                 Category
                               </TableCell>
                               <TableCell sx={{ fontWeight: "bold" }}>
+                                Sub Category
+                              </TableCell>
+                              <TableCell sx={{ fontWeight: "bold" }}>
                                 Description
                               </TableCell>
                               <TableCell sx={{ fontWeight: "bold" }}>
@@ -449,7 +478,11 @@ const MasterRecords = () => {
                           <TableBody>
                             {rec.Expenditures?.map((ex) => (
                               <TableRow key={ex.id} hover>
-                                <TableCell>{ex.category}</TableCell>
+                                <TableCell>
+                                  {categoryDisplayNames[ex.category] ||
+                                    ex.category}
+                                </TableCell>
+                                <TableCell>{ex.subcategory || "-"}</TableCell>
                                 <TableCell>{ex.description}</TableCell>
                                 <TableCell>{formatNumber(ex.amount)}</TableCell>
                               </TableRow>

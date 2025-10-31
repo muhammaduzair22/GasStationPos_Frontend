@@ -11,24 +11,45 @@ import {
 } from "@mui/material";
 import { createRecord } from "../api/masterRecords";
 import { getStations } from "../api/stations";
+import categorySubcategories from "../utils/categorySubcategories";
 
 const DailyDetailForm = () => {
   const storedUser = JSON.parse(localStorage.getItem("user"));
   const userRole = storedUser?.role;
   const userStationId = storedUser?.stationId;
 
+  const categoryDisplayNames = {
+    kitchen: "Kitchen Expenses",
+    general: "General Expenses",
+    generatordieselelubecompressor:
+      "Generator/Compressor Diesel/Lube Amount (Rs.)",
+    salary: "Salary Advance/Net Pay",
+    premisesrent: "Premises Rent",
+    pettycash: "Petty Cash",
+    shahzebkhanallowence: "Shahzeb Khan Allowence",
+    kgandjaws: "KG & JAWS Dastarkhwan",
+    loansgivenreturnedtostation: "Loans   Given/Returned to CNG Station",
+    machineryrepair: "Machinery Repair/Maintenance",
+    loansexpenditurebyakeknknk:
+      "Loans/Expenditures By Aurangzeb Khan/ Ejaz Khan/Dr. Nasir Khan/Nadeem Khan",
+    other: "Other",
+  };
+
   const [formData, setFormData] = useState({
     date: "",
     totalSaleKgs: "",
     totalCngSale: "",
     otherRevenueLoanReturn: "",
-    Expenditures: [{ description: "", amount: "", category: "" }],
     totalDailyExpenditure: "",
+    Expenditures: [
+      { description: "", amount: "", category: "", subcategory: "" },
+    ],
     netSale: "",
     remarks: "",
     depositable: "",
     deposited: "",
     withdrawal: "",
+    gasRatePerKg: "",
     wdDepDate: "",
     stationId: userRole === "manager" ? userStationId : "",
     sngplMeterOpening: "",
@@ -93,8 +114,22 @@ const DailyDetailForm = () => {
 
   const handleExpenditureChange = (index, field, value) => {
     const updated = [...formData.Expenditures];
-    updated[index][field] = value;
-    setFormData({ ...formData, Expenditures: updated });
+    const current = updated[index];
+    updated[index] = {
+      ...current,
+      [field]: value,
+      ...(field === "category" ? { subcategory: "" } : {}), // reset subcategory when category changes
+    };
+
+    const updatedTotal = updated.reduce(
+      (sum, exp) => sum + (parseFloat(exp.amount) || 0),
+      0
+    );
+    setFormData({
+      ...formData,
+      Expenditures: updated,
+      totalDailyExpenditure: updatedTotal,
+    });
   };
 
   const addExpenditureRow = () => {
@@ -102,14 +137,22 @@ const DailyDetailForm = () => {
       ...formData,
       Expenditures: [
         ...formData.Expenditures,
-        { description: "", amount: "", category: "" },
+        { description: "", amount: "", category: "", subcategory: "" },
       ],
     });
   };
 
   const removeExpenditureRow = (index) => {
     const updated = formData.Expenditures.filter((_, i) => i !== index);
-    setFormData({ ...formData, Expenditures: updated });
+    const updatedTotal = updated.reduce(
+      (sum, exp) => sum + (parseFloat(exp.amount) || 0),
+      0
+    );
+    setFormData({
+      ...formData,
+      Expenditures: updated,
+      totalDailyExpenditure: updatedTotal,
+    });
   };
 
   // place this above handleSubmit
@@ -164,10 +207,11 @@ const DailyDetailForm = () => {
     // nested Expenditures
     out.Expenditures = Array.isArray(data.Expenditures)
       ? data.Expenditures.filter(
-          (e) => e && (e.description || e.amount || e.category)
+          (e) => e && (e.description || e.amount || e.category || e.subcategory)
         ).map((e) => ({
           description: e.description || "",
           category: e.category || "other",
+          subcategory: e.subcategory || "",
           amount: toNumberOrNull(e.amount),
         }))
       : [];
@@ -189,18 +233,19 @@ const DailyDetailForm = () => {
         totalSaleKgs: "",
         totalCngSale: "",
         otherRevenueLoanReturn: "",
+        totalDailyExpenditure: "",
         expenditureDetail: "",
         kitchenExpensesAmount: "",
         generalExpensesAmount: "",
         generatorCompressorDieselLubeAmount: "",
         salaryAdvanceNetPay: "",
         loanRepaymentOtherPayments: "",
-        totalDailyExpenditure: "",
         netSale: "",
         remarks: "",
         depositable: "",
         deposited: "",
         withdrawal: "",
+        gasRatePerKg: "",
         wdDepDate: "",
         stationId: "",
         sngplMeterOpening: "",
@@ -253,6 +298,11 @@ const DailyDetailForm = () => {
       </TextField>
     );
   };
+
+  const totalExpenditureAmount = formData.Expenditures.reduce(
+    (sum, exp) => sum + (parseFloat(exp.amount) || 0),
+    0
+  );
 
   return (
     <Container maxWidth="md" sx={{ mt: 4 }}>
@@ -314,7 +364,7 @@ const DailyDetailForm = () => {
           />
 
           <TextField
-            label="Total CNG Sale"
+            label="Total CNG Sale (Rs)"
             name="totalCngSale"
             type="number"
             value={formData.totalCngSale}
@@ -333,72 +383,130 @@ const DailyDetailForm = () => {
           <Typography variant="h6" sx={{ mt: 3 }}>
             Expenditures
           </Typography>
-          {formData.Expenditures.map((exp, index) => (
-            <Grid container spacing={2} key={index}>
-              <Grid item xs={4}>
-                <TextField
-                  label="Description"
-                  value={exp.description}
-                  onChange={(e) =>
-                    handleExpenditureChange(
-                      index,
-                      "description",
-                      e.target.value
-                    )
-                  }
-                  fullWidth
-                />
-              </Grid>
-              <Grid item xs={4} sx={{ width: "20%" }}>
-                <TextField
-                  label="Category"
-                  select
-                  value={exp.category}
-                  onChange={(e) =>
-                    handleExpenditureChange(index, "category", e.target.value)
-                  }
-                  fullWidth
+          {formData.Expenditures.map((exp, index) => {
+            // Determine subcategories based on selected category
+            const subcategories = categorySubcategories[exp.category] || [];
+
+            return (
+              <Grid container spacing={2} key={index} sx={{ mb: 1 }}>
+                <Grid item xs={3}>
+                  <TextField
+                    label="Description"
+                    value={exp.description}
+                    onChange={(e) =>
+                      handleExpenditureChange(
+                        index,
+                        "description",
+                        e.target.value
+                      )
+                    }
+                    fullWidth
+                  />
+                </Grid>
+
+                <Grid item xs={3}>
+                  <TextField
+                    label="Category"
+                    select
+                    value={exp.category}
+                    onChange={(e) =>
+                      handleExpenditureChange(index, "category", e.target.value)
+                    }
+                    fullWidth
+                    slotProps={{
+                      input: {
+                        sx: { minWidth: 180 }, // ensures TextField width
+                      },
+                      select: {
+                        MenuProps: {
+                          PaperProps: {
+                            sx: { minWidth: 200 }, // ensures dropdown width
+                          },
+                        },
+                      },
+                    }}
+                  >
+                    {Object.keys(categoryDisplayNames).map((cat) => (
+                      <MenuItem key={cat} value={cat}>
+                        {categoryDisplayNames[cat]}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                </Grid>
+
+                <Grid item xs={3}>
+                  <TextField
+                    label="Subcategory"
+                    select
+                    value={exp.subcategory}
+                    onChange={(e) =>
+                      handleExpenditureChange(
+                        index,
+                        "subcategory",
+                        e.target.value
+                      )
+                    }
+                    fullWidth
+                    disabled={!exp.category}
+                    slotProps={{
+                      input: { sx: { minWidth: 180 } },
+                      select: {
+                        MenuProps: {
+                          PaperProps: { sx: { minWidth: 200 } },
+                        },
+                      },
+                    }}
+                  >
+                    {subcategories.map((sub) => (
+                      <MenuItem key={sub} value={sub}>
+                        {sub}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                </Grid>
+
+                <Grid item xs={2}>
+                  <TextField
+                    label="Amount"
+                    type="number"
+                    value={exp.amount}
+                    onChange={(e) =>
+                      handleExpenditureChange(index, "amount", e.target.value)
+                    }
+                    fullWidth
+                  />
+                </Grid>
+
+                <Grid
+                  item
+                  xs={1}
+                  sx={{ display: "flex", alignItems: "center" }}
                 >
-                  <MenuItem value="kitchen">Kitchen</MenuItem>
-                  <MenuItem value="general">General</MenuItem>
-                  <MenuItem value="diesel">Diesel</MenuItem>
-                  <MenuItem value="salary">Salary</MenuItem>
-                  <MenuItem value="loan">Loan</MenuItem>
-                  <MenuItem value="other">Other</MenuItem>
-                </TextField>
+                  <Button
+                    color="error"
+                    onClick={() => removeExpenditureRow(index)}
+                  >
+                    X
+                  </Button>
+                </Grid>
               </Grid>
-              <Grid item xs={3}>
-                <TextField
-                  label="Amount"
-                  type="number"
-                  value={exp.amount}
-                  onChange={(e) =>
-                    handleExpenditureChange(index, "amount", e.target.value)
-                  }
-                  fullWidth
-                />
-              </Grid>
-              <Grid item xs={1} sx={{ display: "flex", alignItems: "center" }}>
-                <Button
-                  color="error"
-                  onClick={() => removeExpenditureRow(index)}
-                >
-                  X
-                </Button>
-              </Grid>
-            </Grid>
-          ))}
+            );
+          })}
+
           <Button onClick={addExpenditureRow} sx={{ mt: 1 }}>
             + Add Expenditure
           </Button>
 
-          <TextField
-            label="Total Daily Expenditure"
-            name="totalDailyExpenditure"
-            type="number"
-            value={formData.totalDailyExpenditure}
-            onChange={handleChange}
-          />
+          <Grid container spacing={2} sx={{ mt: 2 }}>
+            <Grid item xs={3}>
+              <TextField
+                label="Total Daily Expenditure"
+                value={formData.totalDailyExpenditure || 0}
+                slotProps={{ readOnly: true }}
+                fullWidth
+              />
+            </Grid>
+          </Grid>
 
           <TextField
             label="Net Sale"
