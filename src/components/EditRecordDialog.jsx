@@ -16,6 +16,7 @@ import {
   Typography,
 } from "@mui/material";
 import { Add, Delete } from "@mui/icons-material";
+import subcategories from "../utils/categorySubcategories";
 
 // inline component, same file
 function EditRecordDialog({
@@ -30,27 +31,54 @@ function EditRecordDialog({
     onChange(field, e.target.value);
   };
 
+  const categoryDisplayNames = {
+    kitchen: "Kitchen Expenses",
+    general: "General Expenses",
+    generatordieselelubecompressor:
+      "Generator/Compressor Diesel/Lube Amount (Rs.)",
+    salary: "Salary Advance/Net Pay",
+    premisesrent: "Premises Rent",
+    pettycash: "Petty Cash",
+    shahzebkhanallowence: "Shahzeb Khan Allowence",
+    kgandjaws: "KG & JAWS Dastarkhwan",
+    loansgivenreturnedtostation: "Loans   Given/Returned to CNG Station",
+    machineryrepair: "Machinery Repair/Maintenance",
+    loansexpenditurebyakeknknk:
+      "Loans/Expenditures By Aurangzeb Khan/ Ejaz Khan/Dr. Nasir Khan/Nadeem Khan",
+    other: "Other",
+  };
+
+  const calculateTotalExpenditure = (expenditures = []) =>
+    expenditures.reduce((sum, exp) => sum + (parseFloat(exp.amount) || 0), 0);
+
   // update one expenditure row
   const handleExpenditureChange = (index, field, value) => {
     const newExps = [...(record.Expenditures || [])];
     newExps[index] = { ...newExps[index], [field]: value };
+    const total = calculateTotalExpenditure(newExps);
+
     onChange("Expenditures", newExps);
+    onChange("totalDailyExpenditure", total);
   };
 
   // add a new expenditure row
   const handleAddExpenditure = () => {
     const newExps = [
       ...(record.Expenditures || []),
-      { description: "", category: "", amount: "" },
+      { description: "", category: "", subcategory: "", amount: "" },
     ];
+    const total = calculateTotalExpenditure(newExps);
     onChange("Expenditures", newExps);
+    onChange("totalDailyExpenditure", total);
   };
 
   // remove a row
   const handleRemoveExpenditure = (index) => {
     const newExps = [...(record.Expenditures || [])];
     newExps.splice(index, 1);
+    const total = calculateTotalExpenditure(newExps);
     onChange("Expenditures", newExps);
+    onChange("totalDailyExpenditure", total);
   };
 
   // update one nozzle reading row
@@ -130,7 +158,7 @@ function EditRecordDialog({
           </Grid>
           <Grid item xs={6}>
             <TextField
-              label="Total CNG Sale"
+              label="Total CNG Sale (Rs)"
               type="number"
               value={record.totalCngSale || ""}
               onChange={handleFieldChange("totalCngSale")}
@@ -139,7 +167,7 @@ function EditRecordDialog({
           </Grid>
 
           {/* Revenue & Expenditure */}
-          <Grid item xs={6}>
+          {/* <Grid item xs={6}>
             <TextField
               label="Other Revenue / Loan Return"
               type="number"
@@ -194,18 +222,17 @@ function EditRecordDialog({
               onChange={handleFieldChange("loanRepaymentOtherPayments")}
               fullWidth
             />
-          </Grid>
+          </Grid> */}
 
           {/* Totals */}
-          <Grid item xs={6}>
-            <TextField
-              label="Total Daily Expenditure"
-              type="number"
-              value={record.totalDailyExpenditure || ""}
-              onChange={handleFieldChange("totalDailyExpenditure")}
-              fullWidth
-            />
-          </Grid>
+          <TextField
+            label="Total Daily Expenditure"
+            type="number"
+            value={record.totalDailyExpenditure || ""}
+            onChange={handleFieldChange("totalDailyExpenditure")}
+            fullWidth
+            InputProps={{ readOnly: true }} // optional if you don’t want manual edits
+          />
           <Grid item xs={6}>
             <TextField
               label="Net Sale"
@@ -272,7 +299,7 @@ function EditRecordDialog({
           {/* SNGPL Meter */}
           <Grid item xs={6}>
             <TextField
-              label="SNGPL Meter Opening"
+              label="SNGPL Meter openingGirary"
               type="number"
               value={record.sngplMeterOpening || ""}
               onChange={handleFieldChange("sngplMeterOpening")}
@@ -298,8 +325,10 @@ function EditRecordDialog({
           <TableHead>
             <TableRow>
               <TableCell sx={{ fontWeight: "bold" }}>Nozzle</TableCell>
-              <TableCell sx={{ fontWeight: "bold" }}>Opening</TableCell>
-              <TableCell sx={{ fontWeight: "bold" }}>Closing</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>Opening Girary</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>Closing Girary</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>Opening Screen</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>Closing Screen</TableCell>
               <TableCell />
             </TableRow>
           </TableHead>
@@ -324,25 +353,49 @@ function EditRecordDialog({
                   </TextField>
                 </TableCell>
 
-                {/* Opening */}
+                {/* openingGirary */}
                 <TableCell>
                   <TextField
                     type="number"
-                    value={nz.opening || ""}
+                    value={nz.openingGirary || ""}
                     onChange={(e) =>
-                      handleNozzleChange(idx, "opening", e.target.value)
+                      handleNozzleChange(idx, "openingGirary", e.target.value)
                     }
                     fullWidth
                   />
                 </TableCell>
 
-                {/* Closing */}
+                {/* closingGirary */}
                 <TableCell>
                   <TextField
                     type="number"
-                    value={nz.closing || ""}
+                    value={nz.closingGirary || ""}
                     onChange={(e) =>
-                      handleNozzleChange(idx, "closing", e.target.value)
+                      handleNozzleChange(idx, "closingGirary", e.target.value)
+                    }
+                    fullWidth
+                  />
+                </TableCell>
+
+                {/* openingScreen */}
+                <TableCell>
+                  <TextField
+                    type="number"
+                    value={nz.openingScreen || ""}
+                    onChange={(e) =>
+                      handleNozzleChange(idx, "openingScreen", e.target.value)
+                    }
+                    fullWidth
+                  />
+                </TableCell>
+
+                {/* closingScreen */}
+                <TableCell>
+                  <TextField
+                    type="number"
+                    value={nz.closingScreen || ""}
+                    onChange={(e) =>
+                      handleNozzleChange(idx, "closingScreen", e.target.value)
                     }
                     fullWidth
                   />
@@ -381,74 +434,165 @@ function EditRecordDialog({
 
         <Table size="small">
           <TableHead>
-            <TableRow>
-              <TableCell sx={{ fontWeight: "bold" }}>Description</TableCell>
+            <TableRow sx={{ backgroundColor: "#f5f5f5" }}>
               <TableCell sx={{ fontWeight: "bold" }}>Category</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>Sub Category</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>Description</TableCell>
               <TableCell sx={{ fontWeight: "bold" }}>Amount</TableCell>
               <TableCell />
             </TableRow>
           </TableHead>
+
           <TableBody>
-            {(record.Expenditures || []).map((ex, idx) => (
-              <TableRow key={idx}>
-                <TableCell>
-                  <TextField
-                    value={ex.description || ""}
-                    onChange={(e) =>
-                      handleExpenditureChange(
-                        idx,
-                        "description",
-                        e.target.value
-                      )
-                    }
-                    fullWidth
-                  />
-                </TableCell>
-                <TableCell>
-                  <TextField
-                    select
-                    value={ex.category || ""}
-                    onChange={(e) =>
-                      handleExpenditureChange(idx, "category", e.target.value)
-                    }
-                    fullWidth
-                  >
-                    {[
-                      "kitchen",
-                      "general",
-                      "diesel",
-                      "salary",
-                      "loan",
-                      "other",
-                    ].map((c) => (
-                      <MenuItem key={c} value={c}>
-                        {c}
-                      </MenuItem>
-                    ))}
-                  </TextField>
-                </TableCell>
-                <TableCell>
-                  <TextField
-                    type="number"
-                    value={ex.amount || ""}
-                    onChange={(e) =>
-                      handleExpenditureChange(idx, "amount", e.target.value)
-                    }
-                    fullWidth
-                  />
-                </TableCell>
-                <TableCell>
-                  <IconButton
-                    color="error"
-                    onClick={() => handleRemoveExpenditure(idx)}
-                  >
-                    <Delete fontSize="small" />
-                  </IconButton>
-                </TableCell>
-              </TableRow>
-            ))}
+            {(record.Expenditures || []).map((ex, idx) => {
+              const selectedCategory = ex.category || "";
+              const subOptions = subcategories[selectedCategory] || [];
+
+              return (
+                <TableRow key={idx} hover>
+                  {/* Category */}
+                  <TableCell>
+                    <TextField
+                      select
+                      value={selectedCategory}
+                      onChange={(e) =>
+                        handleExpenditureChange(idx, "category", e.target.value)
+                      }
+                      fullWidth
+                      sx={{
+                        minWidth: 180,
+                        maxWidth: 200,
+                        "& .MuiSelect-select": {
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                        },
+                      }}
+                      SelectProps={{
+                        MenuProps: {
+                          PaperProps: {
+                            sx: {
+                              // Dropdown menu auto-sizes to content (no truncation)
+                              maxHeight: 400,
+                              width: "auto",
+                              minWidth: 250, // or increase if you have long labels
+                            },
+                          },
+                        },
+                      }}
+                    >
+                      {Object.entries(categoryDisplayNames).map(
+                        ([key, displayName]) => (
+                          <MenuItem
+                            key={key}
+                            value={key}
+                            sx={{
+                              // Show full text in dropdown
+                              whiteSpace: "normal",
+                              wordBreak: "break-word",
+                              maxWidth: "none",
+                            }}
+                          >
+                            {displayName}
+                          </MenuItem>
+                        )
+                      )}
+                    </TextField>
+                  </TableCell>
+
+                  {/* Subcategory */}
+                  <TableCell>
+                    <TextField
+                      select
+                      value={ex.subcategory || ""}
+                      onChange={(e) =>
+                        handleExpenditureChange(
+                          idx,
+                          "subcategory",
+                          e.target.value
+                        )
+                      }
+                      fullWidth
+                      disabled={!subOptions.length}
+                      sx={{
+                        minWidth: 180,
+                        maxWidth: 200,
+                        "& .MuiSelect-select": {
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                        },
+                      }}
+                      SelectProps={{
+                        MenuProps: {
+                          PaperProps: {
+                            sx: {
+                              maxHeight: 400,
+                              width: "auto",
+                              minWidth: 250, // ensures long subcategory names fit
+                            },
+                          },
+                        },
+                      }}
+                    >
+                      {subOptions.map((sub, i) => (
+                        <MenuItem
+                          key={i}
+                          value={sub}
+                          sx={{
+                            whiteSpace: "normal",
+                            wordBreak: "break-word",
+                            maxWidth: "none",
+                          }}
+                        >
+                          {sub}
+                        </MenuItem>
+                      ))}
+                    </TextField>
+                  </TableCell>
+
+                  {/* Description */}
+                  <TableCell>
+                    <TextField
+                      value={ex.description || ""}
+                      onChange={(e) =>
+                        handleExpenditureChange(
+                          idx,
+                          "description",
+                          e.target.value
+                        )
+                      }
+                      fullWidth
+                    />
+                  </TableCell>
+
+                  {/* Amount */}
+                  <TableCell>
+                    <TextField
+                      type="number"
+                      value={ex.amount || ""}
+                      onChange={(e) =>
+                        handleExpenditureChange(idx, "amount", e.target.value)
+                      }
+                      fullWidth
+                    />
+                  </TableCell>
+
+                  {/* Delete Button */}
+                  <TableCell>
+                    <IconButton
+                      color="error"
+                      onClick={() => handleRemoveExpenditure(idx)}
+                    >
+                      <Delete fontSize="small" />
+                    </IconButton>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+
             <TableRow>
-              <TableCell colSpan={4}>
+              <TableCell colSpan={5}>
                 <Button
                   startIcon={<Add />}
                   onClick={handleAddExpenditure}
